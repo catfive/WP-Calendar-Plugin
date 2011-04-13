@@ -1,0 +1,77 @@
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/> 
+<link rel="stylesheet" type="text/css" href="http://adamglab.com/reset.css"/> 
+<link rel="stylesheet" type="text/css" href="http://adamglab.com/isotope_style.css"/> 
+<link rel="stylesheet" href="http://adamglab.com/lightbox.css" type="text/css" media="screen" /> 
+	<div id="options" class="clearfix"> 
+		<h2> 
+			<ul id="filters"> 
+				<!--**adding id's to your links makes them 7000% easier to target**-->
+				<li><a href="#filter" id="all" class="selected">ALL</a></li> 
+				<li><a href="#filter" id="film">FILM</a></li> 
+				<li><a href="#filter" id="sketchbook">SKETCHBOOK</a></li> 
+			</ul> 
+		</h2> 
+	</div> 
+	
+	<!-- Main container to hold all of the images. --> 
+	<div id="container">  
+ 			<!--
+ 			*images can be classed directly, no real reason to have them in divs
+ 			(of course it doesn't hurt, but minimal markup ftw!)
+ 			
+ 			also they can have multiple classes, so including .all makes them easier
+ 			to filter back in (so clicking "all" brings in everything with .all)*
+ 			-->
+			<img class="all film" src="http://adamglab.com/film/small/Amanda car.jpg" /> 
+			<img class="all sketchbook" src="http://adamglab.com/sketch/small/fuckyou.jpg"/> 
+			
+	<script src="http://adamglab.com/js/jquery-1.4.4.min.js"></script> 
+	<script src="http://adamglab.com/js/jquery.isotope.min.js"></script> 		
+	<script> 	
+	//Images:
+	//Wait for all images to load before isotope loads
+		
+	$(function(){
+	
+		//OHAI IM IN UR MULTIPLE CALLS TO ISOTOPE, CONSOLIDATIN'
+		//THEMS INTO JUS ONE FUNKSHUN
+		$('#container').imagesLoaded( function(){
+  			$(this).isotope({
+      			itemSelector : 'img',		//this was set to .photo, but you weren't using that class on anything!  
+    			layoutMode : 'masonry',
+    			animationEngine:'jquery',	//<--animation wasn't working because this guy was just hanging out outside of a call to isotope()
+    										//the docs DID NOT explicitly say to put it inside though, so I see where you were coming from
+				animationOptions: {
+					duration: 750,
+					easing: 'linear',
+					queue: false
+				}
+  			});
+		});
+		
+	   	//the demo had a whole bunch of weird custom html5 tags. it was a very complicated
+	   	//scenario. this case is simpler, so stick with just id's and classes
+   	 
+	    $('#filters a').click(function(){
+	      	
+	      	//get the id of the link
+	      	var selector = $(this).attr('id');
+	      	
+	      	//filter images with that class
+	      	
+	      	//this is the only weird part... because we pulled the id off the link
+	      	//we need to prepend a dot so jq knows we're looking for a class
+	      	//CONCATENATION BABY
+	      	
+	      	$('#container').isotope({ filter: '.'+selector });
+	      	return false;
+	    	
+	    	//last, switch which link is "selected"
+	    	
+	    	$('a.selected').removeClass('selected');
+	    	$(this).addClass('selected');   
+	    });
+    
+    });
+
+  </script> 

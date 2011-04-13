@@ -1,0 +1,63 @@
+div.details{
+display: none;
+}
+div#calendar table{
+border-bottom: 1px solid #ccc;
+}
+
+div#calendar table td{
+border: 1px solid #ccc;
+border-bottom: none;
+border-left: none;
+width: 68px;
+height: 68px;
+vertical-align: top;
+}
+
+div#calendar table td:first-child{
+border-left: 1px solid #ccc;
+}
+
+.num{
+padding: 0;
+margin: 0;
+}
+a.event{
+margin: 0;
+}
+.event{
+margin: 0  0 0 10px;
+font-size: 10px;
+padding: 0;
+}
+
+div#minical{
+min-height: 400px;
+margin: 0;
+}
+img#calload{
+float: left;
+margin-right: 5px;
+display: none;
+}
+div#minical h1{
+font-size: 1.5em;
+}
+table#eventoptions tbody tr{
+height: 25px;
+}
+a#eventhelp{
+float: right;
+clear: left;
+}
+div#eventhelp{
+clear: right;
+display: none;
+background: #F1F1F1;
+padding: 10px;
+margin-bottom: 10px;
+}
+div#my-custom-fields div.form-wrap{
+margin: auto;
+width:100%;
+}

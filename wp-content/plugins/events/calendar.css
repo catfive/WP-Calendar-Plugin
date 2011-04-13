@@ -1,0 +1,166 @@
+div.details{
+display: none;
+}
+div#calendar table{
+border-bottom: 1px solid #ccc;
+}
+
+div#calendar table td{
+border: 1px solid #ccc;
+border-bottom: none;
+border-left: none;
+width: 68px;
+height: 68px;
+vertical-align: top;
+}
+
+div#calendar table td:first-child{
+border-left: 1px solid #ccc;
+}
+
+p.num{
+padding-left: 5px;
+margin: 0;
+font-size: 1.25em;
+}
+a.event{
+margin: 0;
+}
+.event{
+margin: 0  0 0 10px;
+font-size: 10px;
+padding: 0;
+}
+
+div#minical{
+min-height: 400px;
+margin: 0;
+}
+img#calload{
+float: left;
+margin-right: 5px;
+display: none;
+}
+div#minical h1{
+font-size: 1.5em;
+}
+table#eventoptions tbody tr{
+height: 25px;
+}
+a#eventhelp{
+float: right;
+clear: left;
+}
+div#eventhelp{
+display: none;
+background: #F1F1F1;
+padding: 10px;
+margin-bottom: 10px;
+}
+div#my-custom-fields div.form-wrap{
+margin: auto;
+width:100%;
+}
+
+
+#eventoptions input{
+	color: #BBB;
+}
+input#event_date_start{
+	color: black;
+}
+.set{
+	color: black;
+}
+img#calload{
+display: none;
+}
+div.details{
+display: none;
+position: absolute;
+color: #333;
+font-size: 1.5em;
+margin-left: 90px;
+margin-top: -57px;
+width:327px;
+}
+div.bubbletop{
+padding: 15px 20px 10px 50px;
+margin: 0;
+min-height:53px;
+background: url('/wp-content/themes/Subsite Template/images/nbt.png') no-repeat;
+}
+div.eventdescription{
+background: url('/wp-content/themes/Subsite Template/images/nbm.png') repeat-y;
+width: 324px;
+margin-left: 21px;
+padding-left: 10px;
+padding-bottom: 10px;
+display: none;
+}
+div.bubbletop h2, div.leftbubble h2{
+	margin: 15px 0 0;
+}
+div.timeplace{
+	background: url('/wp-content/themes/Subsite Template/images/nbm.png') repeat-y;
+	display: block;
+	clear: both;
+	padding-left: 10px;
+	padding-bottom: 10px;
+	margin-left: 21px;
+}
+
+div.bubblebottom{
+background: url('/wp-content/themes/Subsite Template/images/nbb.png') bottom no-repeat;
+height: 20px;
+background-position-x: 21px;
+}
+div.leftbubble{
+padding: 15px 50px 10px 50px;
+min-height:53px;
+width: 247px;
+background: url('/wp-content/themes/Subsite Template/images/nbr.png') no-repeat;
+background-position-x: 21px;
+}
+div.detailsLeft{
+margin-left: -360px;
+margin-top: -57px;
+}
+#calendar table{
+border-bottom: 1px solid #ccc;
+}
+.fade{
+color: #ccc;
+}
+#calendar td.day{
+border: 1px solid #ccc;
+border-bottom: none;
+border-left: none;
+width: 128px;
+height: 128px;
+vertical-align: top;
+}
+
+#calendar td:first-child{
+border-left: 1px solid #ccc;
+}
+div.details p{
+font-size: .9em;
+padding:2px 50px 0 20px;
+margin: 0;
+}
+.num{
+padding: 0;
+margin: 0;
+}
+a.event{
+margin: 0;
+}
+ul.event{
+margin: 0 0 0 20px;
+padding: 0;
+}
+ul.event li a{
+font-size: 1.2em;
+margin-bottom: 2px;
+}
