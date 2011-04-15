@@ -85,9 +85,9 @@ margin-top: -57px;
 width:327px;
 }
 div.bubbletop{
-padding: 15px 20px 10px 50px;
+padding: 0;
 margin: 0;
-min-height:53px;
+min-height:78px;
 background: url('/wp-content/themes/Subsite Template/images/nbt.png') no-repeat;
 }
 div.eventdescription{
@@ -98,15 +98,18 @@ padding-left: 10px;
 padding-bottom: 10px;
 display: none;
 }
-div.bubbletop h2, div.leftbubble h2{
-	margin: 15px 0 0;
+div.timeplace h2, div.timeplace h2{
+	margin: 0 0 10px 20px;
+}
+div.wraptest{
+position: relative;
+top: -50px;
 }
 div.timeplace{
 	background: url('/wp-content/themes/Subsite Template/images/nbm.png') repeat-y;
 	display: block;
 	clear: both;
 	padding-left: 10px;
-	padding-bottom: 10px;
 	margin-left: 21px;
 }
 
@@ -163,4 +166,27 @@ padding: 0;
 ul.event li a{
 font-size: 1.2em;
 margin-bottom: 2px;
+}
+div#minical tr.days th{
+padding-bottom: 2px;
+}
+div#minical ul.event{
+margin:0 5px;
+}
+div#minical ul.event li a{
+font-size: 1em;
+}
+div#minical div#calendar td.day{
+width: 75px;
+height: 75px;
+}
+div#minical p.num{
+	margin: 2px;
+	padding: 0;
+	font-style: normal;
+	font-family: Times, sans-serif;
+}
+select#event_repeat_exclusions{
+width:100%;
+min-height: 50px;
 }

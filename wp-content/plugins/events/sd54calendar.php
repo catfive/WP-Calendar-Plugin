@@ -192,8 +192,29 @@ if ( !class_exists('myCustomFields') ) {
 				"capability"	=> "edit_posts",
 				"class"	=> "month",
 				"colspan" => 2				
-			)
-			
+			),
+			array(
+				"name"	 => "repeat_exclude",
+				"title"	 => "Except On:",
+				"id" => "repeatexclude",
+				"description" => "",
+				"options"	 => '',
+				"type"	 => "default",
+				"scope"	 => array( "post" ),
+				"capability"	=> "edit_posts",
+				"class"	=> "repeating",
+				),
+			array(
+				"name"	 => "repeat_stop",
+				"title"	 => "Stop On:",
+				"id" => "repeatstop",
+				"description" => "",
+				"options"	 => '',
+				"type"	 => "default",
+				"scope"	 => array( "post" ),
+				"capability"	=> "edit_posts",
+				"class"	=> "repeating",
+				),
 		);
 		/**
 		* PHP 5 Constructor
@@ -292,14 +313,15 @@ if ( !class_exists('myCustomFields') ) {
 										if (!empty($customField['title'])):?>
 											</tr>
 											<tr>
-												<td class="<?php echo $customField['class']?>">
+												<td valign="top" style="padding-top:5px" class="<?php echo $customField['class']?>">
 													<label for="<?php echo $this->prefix . $customField[ 'name' ]?>" style="display:inline;">
 														<b><?php echo $customField[ 'title' ]?></b>
 													</label>
 												</td>
 										<?php endif; ?>
 										<td class="<?php echo $customField['class']?>" colspan=<?php echo $customField['colspan']?>>
-											<select name="<?php echo $this->prefix . $customField['name']?>" id="<?php echo $this->prefix . $customField['name']?>">
+											<select name="<?php echo $this->prefix . $customField['name']?>" 
+													id="<?php echo $this->prefix . $customField['name']?>">
 										
 											<?php foreach($customField['options'] as $cfOption):?>
 												<option <?php //<--unclosed intentionally to allow room for 'selected'
@@ -321,6 +343,7 @@ if ( !class_exists('myCustomFields') ) {
 										 <?php
 										 endif;
 										 break;
+									
 									default: 
 										// Plain text field
 										if (!empty($customField['title'])):?>
@@ -334,13 +357,30 @@ if ( !class_exists('myCustomFields') ) {
 										<?php endif; ?>
 											<td class="<?php echo $customField['class'] ?>">
 												<input type="text" style="width:80px" 
-													name="<?php echo $this->prefix . $customField[ 'name' ] ?>" 
+													name="<?php if($customField[ 'name' ] != 'repeat_exclude') echo $this->prefix . $customField[ 'name' ] ?>" 
 													id="<?php echo $this->prefix . $customField[ 'name' ] ?>"
 													value="<?php if ($value = get_post_meta( $post->ID, $this->prefix . $customField[ 'name' ], true ))
-														if ( $customField['name'] == "date_start" || $customField['name'] == "date_end") $value = date('n/j/Y', $value);
-														echo  htmlspecialchars( $value );?>"
+														if ( $customField['name'] == "date_start" || $customField['name'] == "date_end" || $customField['name'] == 'repeat_stop')  $value = date('n/j/Y', $value);
+														if ($customField[ 'name' ] != 'repeat_exclude') echo  htmlspecialchars( $value );?>"
 												/>
 											</td>
+										<?php if ($customField['name'] == 'repeat_exclude'):?>
+											<td> <a id="add_exclusion" href="javascript:;" class="button">+</a> <a id="remove_exclusion" href="javascript:;" class="button">&minus;</a></td>
+											</tr><tr>
+												<td></td>
+												<td class="repeating" colspan="2">
+													<select id="event_repeat_exclusions" name="event_repeat_exclude[]" multiple="multiple">
+														<?php
+														if($exclusions = unserialize(get_post_meta( $post->ID, 'event_repeat_exclude', true ))){
+															foreach($exclusions as $exclusion){
+																echo "<option value='$exclusion'>".date('m/d/y', $exclusion)."</option>";
+															}
+														}
+														?>
+													</select>
+												</td>
+											</tr>
+										<?php endif; ?>
 										<?php
 										break;					
 								endswitch;
@@ -348,7 +388,6 @@ if ( !class_exists('myCustomFields') ) {
 					endforeach; ?>
 				</table>
 					<div id="minical"></div>
-
 				</div>
 			</div>
 			<?php
@@ -363,21 +402,30 @@ if ( !class_exists('myCustomFields') ) {
 				return;
 			foreach ( $this->customFields as $customField ) {
 				if ( current_user_can( $customField['capability'], $post_id ) ) {
-					if ( isset( $_POST[ $this->prefix . $customField['name'] ] ) && trim( $_POST[ $this->prefix . $customField['name'] ] ) ) {
-						if ($customField['name'] == 'date_start'){
+
+					if (!is_array($_POST[ $this->prefix . $customField['name'] ]) && isset( $_POST[ $this->prefix . $customField['name'] ] ) && trim( $_POST[ $this->prefix . $customField['name'] ] )){ 
+						if($customField['name'] == 'repeat_stop'){
+							$value = strtotime($_POST[ $this->prefix . $customField['name'] ]);
+						}
+						elseif ($customField['name'] == 'date_start'){
 							$value = $_POST[ $this->prefix . $customField['name'] ]; 
-							if (isset($_POST['event_time_start'])) $value .=' ' . $_POST[ 'event_time_start' ];
+							if (isset($_POST['event_time_start']) && trim($_POST['event_time_start'])) $value .=' ' . $_POST[ 'event_time_start' ];
 							$value = strtotime($value);
 						}
 						elseif ($customField['name'] == 'date_end'){
-							$value = $_POST[ $this->prefix . $customField['name'] ]; 
-							if (isset($_POST['event_time_end'])) $value .=' ' . $_POST[ 'event_time_end' ];
+							$value = $_POST[ $this->prefix . $customField['name'] ];
+							if (isset($_POST['event_time_end']) && trim($_POST['event_time_end'])) $value .=' ' . $_POST[ 'event_time_end' ];
 							$value = strtotime($value);
-						}
-						else $value = $_POST[ $this->prefix . $customField['name'] ];
 
+						}
+						else $value = trim($_POST[ $this->prefix . $customField['name'] ]);
+/* 						echo $customField['name'].": $value, post value: ".$_POST[ $this->prefix . $customField['name'] ]."<br>"; */
 						update_post_meta( $post_id, $this->prefix . $customField[ 'name' ], $value );
 					} 
+					elseif($customField['name'] == 'repeat_exclude'){
+						$value = serialize($_POST['event_repeat_exclude']);
+						update_post_meta( $post_id, $this->prefix . $customField[ 'name' ], $value );
+					}	
 					else {
 						delete_post_meta( $post_id, $this->prefix . $customField[ 'name' ] );
 					}
@@ -387,7 +435,7 @@ if ( !class_exists('myCustomFields') ) {
 
 		}
 	} // End Class
-} // End if class exists statement
+} // End if class exists statementma
 	
 // Instantiate the class
 if ( class_exists('myCustomFields') ) {

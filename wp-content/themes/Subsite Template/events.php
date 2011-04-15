@@ -51,17 +51,23 @@ while ( $RecurringEvents->have_posts() ) : $RecurringEvents->the_post();
 	$RecurringEventStartDayInt = date('j', $RecurringEventStartTime);
 	$RecurringEventRepeatInterval = get_post_meta($post->ID, 'event_repeat_interval', true);
 	$RecurringEventRepeatUnit = get_post_meta($post->ID, 'event_repeat_unit', true);
+	if ($RecurringEventRepeatExclusions = unserialize(get_post_meta($post->ID, 'event_repeat_exclude', true)));
+	$StopRecurringTime = $CurrentMonthEndTime;
+	if ($RecurringEventRepeatStop = get_post_meta($post->ID, 'event_repeat_stop', true)){
+		if ($RecurringEventRepeatStop < $CurrentMonthEndTime){
+			$StopRecurringTime = $RecurringEventRepeatStop;
+		}
+	}
 	if ($RecurringEventRepeatOn = get_post_meta($post->ID, 'event_repeat_on', true));
 	if ($RecurringEventEndTime = get_post_meta($post->ID, 'event_date_end', true)){
 		$RecurringEventEndDayInt = date('j', $RecurringEventEndTime); 
 		$EventLength = $RecurringEventEndDayInt-$RecurringEventStartDayInt;
 	}
 	else unset($EventLength);
-	while ($RecurringEventStartTime <= $CurrentMonthEndTime){
+	while ($RecurringEventStartTime <= $StopRecurringTime){
 		$RecurringEventDateString = date('n/j/y', $RecurringEventStartTime);
-		if ($RecurringEventRepeatOn == 'same weekday'){
-			$monthstr = date('F', $RecurringEventStartTime);
-			
+		if ($RecurringEventRepeatUnit == 'month' && $RecurringEventRepeatOn == 'same weekday'){
+			$monthstr = date('F', $RecurringEventStartTime);			
 			$weekdaystr = date('l', $RecurringEventStartTime);
 			$year = date('Y', $RecurringEventStartTime);
 			$firstweekday = date('W', strtotime("first $weekdaystr of $monthstr $year"));
@@ -78,21 +84,24 @@ while ( $RecurringEvents->have_posts() ) : $RecurringEvents->the_post();
 			$RecurringEventStartTime = strtotime("$ordinal $weekdaystr of $monthstr $year +$RecurringEventRepeatInterval month");
 		}
 		else{
-			$RecurringEventStartTime = strtotime("$RecurringEventDateString + $RecurringEventRepeatInterval $RecurringEventRepeatUnit");
+			$RecurringEventStartTime = strtotime("$RecurringEventDateString +$RecurringEventRepeatInterval $RecurringEventRepeatUnit");
 		}
-		if ($RecurringEventStartTime >= $CurrentMonthBeginTime && $RecurringEventStartTime <= $CurrentMonthEndTime){
-			$events[date('Y', $RecurringEventStartTime)]
-					[date('n', $RecurringEventStartTime)]
-						[date('j', $RecurringEventStartTime)]
-							[$post->ID] = $RecurringEventStartTime;
-			if ($EventLength > 0){
-				$DayCount = 1;
-				while ($DayCount <= $EventLength){
-					$events[date('Y', $RecurringEventStartTime)]
-					[date('n', $RecurringEventStartTime)]
-						[(date('j', $RecurringEventStartTime)+$DayCount)]
-							[$post->ID] = $RecurringEventStartTime;	
-					$DayCount++;
+		if ($RecurringEventStartTime >= $CurrentMonthBeginTime && $RecurringEventStartTime <= $StopRecurringTime){
+			if ($RecurringEventRepeatExclusions && in_array($RecurringEventStartTime, $RecurringEventRepeatExclusions));
+			else{
+				$events[date('Y', $RecurringEventStartTime)]
+						[date('n', $RecurringEventStartTime)]
+							[date('j', $RecurringEventStartTime)]
+								[$post->ID] = $RecurringEventStartTime;
+				if ($EventLength > 0){
+					$DayCount = 1;
+					while ($DayCount <= $EventLength){
+						$events[date('Y', $RecurringEventStartTime)]
+						[date('n', $RecurringEventStartTime)]
+							[(date('j', $RecurringEventStartTime)+$DayCount)]
+								[$post->ID] = $RecurringEventStartTime;	
+						$DayCount++;
+					}
 				}
 			}
 		}		
@@ -131,11 +140,11 @@ while ( have_posts() ): the_post();
 endwhile;
 wp_reset_query();
 function get_events($post, $day){
-	$EventStartTime = get_post_meta($post, 'event_date_start', true);
-	$EventTimeStartStr = get_post_meta($post, 'event_time_start', true);
-	$EventEndTime = get_post_meta($post, 'event_date_end', true);
-	$EventTimeEndStr = get_post_meta($post, 'event_time_end', true);
-	$EventLocation = get_post_meta($post, 'event_location', true);
+	if($EventStartTime = get_post_meta($post, 'event_date_start', 		true));
+	if($EventTimeStartStr = get_post_meta($post, 'event_time_start', 	true));
+	if($EventEndTime = get_post_meta($post, 'event_date_end', 			true));
+	if($EventTimeEndStr = get_post_meta($post, 'event_time_end', 		true));
+	if($EventLocation = get_post_meta($post, 'event_location', 			true));
 	?>
 	<li class="<?php echo $class?>">
 		<a id="event-<?php echo $post.$day?>" class="event" href="javascript:;">
@@ -144,36 +153,38 @@ function get_events($post, $day){
 	</li>									
 	<div id="event-<?php echo $post.$day?>" class="details">
 	<div class="bubbletop">
-		<h2><a href="<?php echo get_permalink($post)?>"><?php echo get_the_title($post) ?></a></h2>
 	</div>
 	<div class="timeplace">
-		<p><?php 
-		if (get_post_meta($post, 'event_repeats', true)){
-			echo get_post_meta($post,'event_repeat_on_description', true);
+		<div class="wraptest">
+		<h2><a href="<?php echo get_permalink($post)?>"><?php echo get_the_title($post) ?></a></h2>
+		<p>
+		<?php 
+		if($repeats = get_post_meta($post, 'event_repeats', true)){
+			if($repeat_descrip = get_post_meta($post, 'event_repeat_on_description', true))
+				$details = "<em>$repeat_descrip</em></p><br/>";
+			elseif ($unit = get_post_meta($post, 'event_repeat_unit', true)){ 
+								$interval = get_post_meta($post, 'event_repeat_interval', true);
+								$details .="<p><em>every ";
+								if ($interval < 2) $details .= "$unit</em></p><br/>";
+								else $details .= $interval ." ".$unit."s</em></p><br/>";	
+			}
 		}
-		else {
-		if ($EventEndTime):?>
-		<strong>from: </strong>
-		<?php	
-		endif;
-		echo date('l, F j', $EventStartTime);
-		}
-		if ($EventTimeStartStr) echo " at " . date ('g:i a', $EventStartTime);
-		if ($EventEndTime):
-		?></p>
-		<p><strong>to:</strong>
-		<?php
-		echo date('l, F j', $EventEndTime);
-		if ($EventTimeEndStr) echo " at " . date('g:i a', $EventTimeEndStr);
-		endif;
-		if ($EventLocation):?></p>
-		<p><strong>location:</strong>
-		<?php
-		echo $EventLocation;	
-		endif;
-		?>
-		</p>
+		$details .= "<p>";
+		if ($EventEndTime) $details .= "<strong>from:</strong> ";
+		$details.= date('m/d/y', $EventStartTime)." ";
+		if ($EventTimeStartStr) $details .= "at ".preg_replace('/([ap])(m)/', '$1.$2.', date('g:i a', $EventStartTime))."</p>";
 		
+		if ($EventEndTime){
+			$details .= "<p><strong>to:</strong> ";
+			$details.= date('m/d/y', $EventEndTime)." ";
+			if ($EventTimeEndStr) $details .= "at ".preg_replace('/([ap])(m)/', '$1.$2.', date('g:i a', $EventEndTime))."</p>";
+				
+		}	
+		echo $details;
+		?>
+		
+		</p>
+		</div>
 	</div>
 		<div class="eventdescription"></div>	
 		<div class="bubblebottom"></div>
@@ -184,7 +195,7 @@ wp_reset_query();
 ?>
 <div id="calendar">
 	<div style='float:right'>
-		<img id="calload" src="/wp-admin/images/wpspin_light.gif">
+		<img id="calload" src="/wp-admin/images/wpspin_light.gif">												<?php //take this out and load it with js, lazyass ?>
 		<a class='button' id="previous" 
 			href='/events/<?php echo "$PreviousYearInt/$PreviousMonthInt"?> '>
 			&laquo; Previous
